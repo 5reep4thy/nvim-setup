@@ -1,0 +1,86 @@
+# A valid snippet should starts with:
+#
+#		snippet trigger_word [ "description" [ options ] ]
+#
+# and end with:
+#
+#		endsnippet
+#
+# Snippet options:
+#
+#		b - Beginning of line.
+#		i - In-word expansion.
+#		w - Word boundary.
+#		r - Regular expression
+#		e - Custom context snippet
+#		A - Snippet will be triggered automatically, when condition matches.
+#
+# Basic example:
+#
+#		snippet emitter "emitter properties" b
+#		private readonly ${1} = new Emitter<$2>()
+#		public readonly ${1/^_(.*)/$1/}: Event<$2> = this.$1.event
+#		endsnippet
+#
+# Online reference: https://github.com/SirVer/ultisnips/blob/master/doc/UltiSnips.txt
+snippet fenwick "fenwick" b
+template<typename T>
+struct fenwick {
+	vector<T> bit;
+	int n;
+	fenwick(vector<T> &x) {
+		this -> n = x.size() + 1;
+		this -> bit.resize(n, 0);
+		for (int i = 0; i < n - 1; i++) {
+			add(i, x[i]);
+		}
+	}
+	void add(int idx, T delta) {
+		for (++idx; idx < n; idx += idx & -idx)
+				bit[idx] += delta;
+	}
+	int sum(int idx) {
+		T ret = 0;
+		for (++idx; idx > 0; idx -= idx & -idx)
+					ret += bit[idx];
+			return ret;
+	}
+
+	T sum(int l, int r) {
+		return sum(r) - sum(l - 1);
+	}
+};
+
+endsnippet
+
+snippet sieve "sieve" b
+template<typename T>
+struct sieve {
+	vector<T> siev;
+	int n;
+	sieve(int MXN) {
+		this -> n = MXN + 1;
+		siev.resize(this -> n);
+		for (int i = 0; i <= this -> n; i++)
+			siev[i] = i;
+		for (int i = 2; i * i <= this -> n; i++) {
+			if (siev[i] == i) {
+				for (int j = i; j <= this -> n; j += i) {
+					siev[j] = i;
+				}
+			}
+		}
+	}
+	vector<int> find_factors(T x) {
+		vector<int> factors;
+		while (x > 1) {
+			factors.push_back(siev[x]);
+			T fact = siev[x];
+			while (x % fact == 0 && x > 1) {
+				x /= fact;
+			}
+		}
+		return factors;
+	}
+};
+endsnippet

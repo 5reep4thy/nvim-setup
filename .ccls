@@ -1,0 +1,4 @@
+g++
+-isystem/usr/local/Cellar/gcc/13.1.0/include/c++/13/x86_64-apple-darwin21
+-isystem/usr/local/Cellar/gcc/13.1.0/include/c++/13
+%cpp -std=c++17
