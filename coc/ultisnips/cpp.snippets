@@ -53,6 +53,72 @@ struct fenwick {
 
 endsnippet
 
+snippet mod_inv "mod_inv" b
+const ll mod = 1e9 + 7;
+ll binpow(ll a, ll b) {
+  ll ans = 1;
+  while (b) {
+    if (b % 2) {
+      ans *= a;
+      ans %= mod;
+    }
+    a = a * a;
+    a %= mod;
+    b = b >> 1;
+    b %= mod;
+  }
+  return ans;
+}
+ll mod_inv(ll a) {
+  return binpow(a, mod - 2);
+}
+endsnippet
+
+snippet factorial "factorial" b
+const ll mod = 1e9 + 7;
+ll binpow(ll a, ll b) {
+  ll ans = 1;
+  while (b) {
+    if (b % 2) {
+      ans *= a;
+      ans %= mod;
+    }
+    a = a * a;
+    a %= mod;
+    b = b >> 1;
+    b %= mod;
+  }
+  return ans;
+}
+ll mod_inv(ll a) {
+  return binpow(a, mod - 2);
+}
+vector<ll> factorial(ll n) {
+  vector<ll> fact(n);
+  fact[0] = 1;
+  fact[1] = 1;
+  for (int i = 2; i < n; i++) {
+    fact[i] = fact[i - 1] * i;
+    fact[i] %= mod;
+  }
+  return fact;
+}
+
+vector<ll> factorial_inv(ll n) {
+  vector<ll> fact_inv(n);
+  fact_inv[0] = 1;
+  fact_inv[1] = 1;
+  for (int i = 2; i < n; i++) {
+    fact_inv[i] = fact_inv[i - 1] * mod_inv(i);
+    fact_inv[i] %= mod;
+  }
+  return fact_inv;
+}
+const int mxN = 
+vector<ll> fact(mxN), fact_inv(mxN);
+endsnippet
+
+
 snippet sieve "sieve" b
 template<typename T>
 struct sieve {
@@ -82,5 +148,116 @@ struct sieve {
 		}
 		return factors;
 	}
+};
+endsnippet
+
+snippet dsu "dsu" b
+template<typename T>
+struct dsu {
+	vector<T> parent;
+	vector<T> size;
+	int n;
+	dsu(int n) {
+		parent.resize(n);
+		size.resize(n);
+		for (int i = 0; i < n; i++) {
+			parent[i] = i;
+			size[i] = 1;
+		}
+	}
+
+	T get_parent(T a) {
+		if (parent[a] == a)
+			return a;
+		return parent[a] = get_parent(parent[a]);
+	}
+			
+	void dsu_join(T a, T b) {
+		a = get_parent(a);
+		b = get_parent(b);
+		if (a == b)
+			return;
+		if (size[a] < size[b]) {
+			swap(a, b);
+		}
+		size[a] += size[b];
+		parent[b] = a;
+	}
+					
+};
+endsnippet
+
+snippet mod_util "mod_util" b
+const ll MOD = 1000000007;
+template<typename Tp = long long>
+Tp mod_add(Tp &a, Tp b) {
+  return a = (a + b) % MOD;
+}
+template<typename Tp = long long>
+Tp mod_sub(Tp &a, Tp b) {
+  return a = (a - b + MOD) % MOD;
+}
+template<typename Tp = long long>
+Tp mod_mul(Tp &a, Tp b) {
+  return a = (a * b) % MOD;
+}
+template<typename Tp = long long>
+Tp power(Tp x, Tp y) {
+  ll ans = 1;
+  while (y > 0) {
+    if (y & 1)
+      mod_mul(ans, x);
+    mod_mul(x, x);
+    y = y >> 1;
+  }
+  return ans;
+}
+template<typename Tp = long long>
+Tp mod_inv(Tp a) {
+  return power(a, MOD - 2);
+}
+
+template<class Tp = long long, Tp MOD_ = 1000000007>
+class Mod {
+  public:
+    Tp x;
+
+    Mod (Tp in) : x(in) {}
+    Mod () : x(0) {}
+    ~Mod ()  {}
+    Mod& operator+(const Tp& val) {
+      x += val;
+      x %= MOD_;
+      return *this;
+    }
+    Mod& operator-(const Tp& val) {
+      x -= val;
+      x %= MOD_;
+			x += MOD_;
+			x %= MOD_;
+      return *this;
+    }
+    Mod& operator*(const Tp& val) {
+      x *= val;
+      x %= MOD_;
+      return *this;
+    }
+
+    Mod& power(Tp val) {
+      Tp ans = 1;
+      Tp y = x;
+      while (y > 0) {
+        if (y & 1) {
+          ans = ans * val;
+          ans %= MOD_;
+        }
+        val = val * val;
+        val %= MOD_;
+        y = y >> 1;
+      }
+      x = ans;
+      return *this;
+    }
+
 };
 endsnippet

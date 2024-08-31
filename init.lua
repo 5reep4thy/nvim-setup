@@ -1,40 +1,72 @@
 vim.cmd('source ~/.config/init.vim')
+-- Mason
+require("mason").setup()
+require("sol")
+
+_G.toggle_color_scheme = function(color_scheme)
+    if color_scheme == "sol" then
+        vim.cmd("colorscheme solarized")
+        vim.cmd("set background=light")
+    end
+end
+
+vim.api.nvim_set_keymap('n', '<leader>tc', ':lua toggle_color_scheme(vim.fn.input("Enter color scheme:  "))<CR>', { noremap = true, silent = true })
 
 local dap = require('dap')
-dap.adapters.lldb = {
-  type = 'executable',
-  command = '/usr/bin/lldb', -- adjust as needed, must be absolute path
-  name = 'lldb'
+dap.adapters.codelldb = {
+  type = 'server',
+  port = "13001",
+  executable = {
+    -- CHANGE THIS to your path!
+    command = '/Users/sreepathyjayanand/Documents/utils/dap/adapter/codelldb',
+    -- command = '/Users/sreepathyjayanand/.local/share/nvim/mason/bin/codelldb',
+    args = {"--port", "13001"},
+
+    -- On windows you may have to uncomment this:
+    -- detached = false,
+  }
 }
-local dap = require('dap')
 dap.configurations.cpp = {
   {
-    name = 'Launch',
-    type = 'lldb',
-    request = 'launch',
+    name = "Launch file",
+    type = "codelldb",
+    request = "launch",
     program = function()
       return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
     end,
     cwd = '${workspaceFolder}',
-    stopOnEntry = true,
-    args = {},
-
-    -- 💀
-    -- if you change `runInTerminal` to true, you might need to change the yama/ptrace_scope setting:
-    --
-    --    echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
-    --
-    -- Otherwise you might get the following error:
-    --
-    --    Error on launch: Failed to attach to the target process
-    --
-    -- But you should be aware of the implications:
-    -- https://www.kernel.org/doc/html/latest/admin-guide/LSM/Yama.html
-    -- runInTerminal = false,
+    stopOnEntry = false,
+    stdio = 'input.txt',
   },
 }
-
--- If you want to use this for Rust and C, add something like this:
-
+local dap, dapui = require("dap"), require("dapui")
+dapui.setup()
+dap.listeners.before.attach.dapui_config = function()
+  dapui.open()
+end
+dap.listeners.before.launch.dapui_config = function()
+  dapui.open()
+end
+dap.listeners.before.event_terminated.dapui_config = function()
+  dapui.close()
+end
+dap.listeners.before.event_exited.dapui_config = function()
+  dapui.close()
+end
 dap.configurations.c = dap.configurations.cpp
 dap.configurations.rust = dap.configurations.cpp
+vim.keymap.set({'n', 'v'}, '<Leader>dh', function()
+      require('dap.ui.widgets').hover()
+    end)
+    vim.keymap.set({'n', 'v'}, '<Leader>dp', function()
+      require('dap.ui.widgets').preview()
+    end)
+    vim.keymap.set('n', '<Leader>df', function()
+      local widgets = require('dap.ui.widgets')
+      widgets.centered_float(widgets.frames)
+    end)
+    vim.keymap.set('n', '<Leader>ds', function()
+      local widgets = require('dap.ui.widgets')
+      widgets.centered_float(widgets.scopes)
+    end)
+vim.keymap.set('n', '<C-I>', '<C-I>')
